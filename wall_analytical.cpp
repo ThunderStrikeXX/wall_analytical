@@ -16,17 +16,17 @@ int main() {
     const double pi = acos(-1.0);
 
     constexpr double k = 20.0;              // Steel thermal conductivjy [W/mK]
-    constexpr double rho = 7850.0;          // Steel densjy [kg/m3]
+    constexpr double rho = 7850.0;          // Steel density [kg/m3]
     constexpr double cp = 500.0;            // Steel specific heat [J/kgK]
     constexpr double T_amb = 300.0;         // Ambient temperature [K]
-    double Q = 1e6;                       // Heat pipe volumetric source term [W/m3]
+    double Q = 1e6;                         // Heat pipe volumetric source term [W/m3]
 
     std::vector<double> T(N, 300.0);
     
     // Output file
     std::ofstream file("T_wall.dat");
 
-    // Coefficient A_n from the injial condjions
+    // Coefficient A_n from the initial condjions
     auto A_n = [&](int n) {
         double sign = std::pow(-1.0, n);
         double val = sign * -16 * Q * L * L / (k * std::pow(pi, 3) * std::pow(2 * n + 1, 3));
