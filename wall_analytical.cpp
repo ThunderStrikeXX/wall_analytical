@@ -101,7 +101,7 @@ int main() {
 
         // Output
         for (int i = 0; i < N; ++i)
-            file << T[i] << " ";
+            file << T[i] << ", ";
 
         file << "\n";
     }
