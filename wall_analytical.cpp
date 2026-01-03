@@ -36,17 +36,17 @@ int main() {
     // Physics and domain
     constexpr int N = 100;                  // Number of wall cells
     constexpr double L = 1.0;               // Wall length [m]
-	constexpr double dz = L / N;            // Wall cell size [m]
-    constexpr double dt = 1e-1;             // Time step [s]
+	constexpr double dz = L / (N - 1);      // Wall cell size [m]
+    constexpr double dt = 1e-3;             // Time step [s]
     constexpr int time_iter = 1000;         // Number of time iterations
-    constexpr int harm = 200;               // Number of harmonics [-]
+    constexpr int harm = 100;               // Number of harmonics [-]
     const double pi = acos(-1.0);
 
     constexpr double k = 20.0;              // Steel thermal conductivjy [W/mK]
     constexpr double rho = 7850.0;          // Steel density [kg/m3]
     constexpr double cp = 500.0;            // Steel specific heat [J/kgK]
     constexpr double T_amb = 300.0;         // Ambient temperature [K]
-    constexpr double Q = 1e6;               // Heat pipe volumetric source term [W/m3]
+    constexpr double Q = 1e8;               // Heat pipe volumetric source term [W/m3]
 
 	// Temperature vector
     std::vector<double> T(N, 300.0);
@@ -61,7 +61,19 @@ int main() {
         return val;
     };
 
+	std::vector<double> lambda_vec(harm);
+	std::vector<double> An_vec(harm);
+	std::vector<double> xx_vec(N);
+
     double start = omp_get_wtime();
+
+    for (int i = 0; i < N; ++i) xx_vec[i] = i * dz;
+
+    for (int n = 0; n < harm; ++n) {
+        
+        lambda_vec[n] = (2.0 * n + 1.0) * pi / (2.0 * L);
+        An_vec[n] = A_n(n);
+    }
 
     // Time loop
     for (int j = 0; j < time_iter; ++j) {
@@ -69,40 +81,35 @@ int main() {
         double t = dt * j;
 
         // Node loop
+		// Note: parallelizazion here is not useful and slows down the execution
         for (int i = 0; i < N; ++i) {
 
-            // Stationary solution
-            double xx = i * dz;
-            double Ts = T_amb + Q / (2.0 * k) * (L * L - xx * xx);
+            double Ts = T_amb + Q / (2.0 * k) * (L * L - xx_vec[i] * xx_vec[i]);
 
             // Transient solution
             double Tt = 0.0;
             for (int n = 0; n < harm; ++n) {
-                double lambda = (2.0 * n + 1.0) * pi / (2.0 * L);
-                double An = A_n(n);
-                double cosine = std::cos(lambda * xx);
-                double expo = std::exp(-k / (rho * cp) * lambda * lambda * t);
-                Tt += An * cosine * expo;
+
+                double cosine = std::cos(lambda_vec[n] * xx_vec[i]);
+                double expo = std::exp(-k / (rho * cp) * lambda_vec[n] * lambda_vec[n] * t);
+                Tt += An_vec[n] * cosine * expo;
             }
 
 			// Superposition of stationary and transient solution
             T[i] = Ts + Tt;
         }
 
-        // ===================================================================
-        //                          OUTPUT
-        // ===================================================================
-
+        // Output
         for (int i = 0; i < N; ++i)
             file << T[i] << " ";
 
         file << "\n";
-        file.flush();
     }
 
     double end = omp_get_wtime();
     std::cout << "Execution time: " << end - start;
 
+    file.flush();
     file.close();
 
     return 0;
