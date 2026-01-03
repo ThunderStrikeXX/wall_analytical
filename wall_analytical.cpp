@@ -1,8 +1,35 @@
-﻿#include <iostream>
+﻿/**
+ * Analytical solution of the 1D transient heat conduction equation
+ * in a solid wall with internal heat generation.
+ *
+ * Domain:
+ *   z ∈ [0, L]
+ *
+ * Governing equation:
+ *   ρ c_p ∂T/∂t = k ∂²T/∂z² + Q
+ *
+ * Boundary conditions:
+ *   - z = 0 : zero heat flux (adiabatic)
+ *             ∂T/∂z = 0
+ *
+ *   - z = L : prescribed temperature
+ *             T = 300 K
+ *
+ * Initial condition:
+ *   - Uniform temperature field
+ *             T(z, 0) = 300 K
+ *
+ * Source term:
+ *   - Uniform, constant volumetric heat generation
+ *             Q = const [W/m³]
+ */
+
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <cmath>
 #include <iomanip>
+#include <omp.h>
 
 int main() {
 
@@ -19,19 +46,22 @@ int main() {
     constexpr double rho = 7850.0;          // Steel density [kg/m3]
     constexpr double cp = 500.0;            // Steel specific heat [J/kgK]
     constexpr double T_amb = 300.0;         // Ambient temperature [K]
-    double Q = 1e6;                         // Heat pipe volumetric source term [W/m3]
+    constexpr double Q = 1e6;               // Heat pipe volumetric source term [W/m3]
 
+	// Temperature vector
     std::vector<double> T(N, 300.0);
     
     // Output file
-    std::ofstream file("T_wall.dat");
+    std::ofstream file("wall_analytical.dat");
 
-    // Coefficient A_n from the initial condjions
+    // Coefficient A_n from the initial conditions
     auto A_n = [&](int n) {
         double sign = std::pow(-1.0, n);
         double val = sign * -16 * Q * L * L / (k * std::pow(pi, 3) * std::pow(2 * n + 1, 3));
         return val;
     };
+
+    double start = omp_get_wtime();
 
     // Time loop
     for (int j = 0; j < time_iter; ++j) {
@@ -55,7 +85,7 @@ int main() {
                 Tt += An * cosine * expo;
             }
 
-            // Superposition
+			// Superposition of stationary and transient solution
             T[i] = Ts + Tt;
         }
 
@@ -69,6 +99,9 @@ int main() {
         file << "\n";
         file.flush();
     }
+
+    double end = omp_get_wtime();
+    std::cout << "Execution time: " << end - start;
 
     file.close();
 
