@@ -39,7 +39,7 @@ int main() {
 	constexpr double dz = L / (N - 1);      // Wall cell size [m]
     constexpr double dt = 1e-3;             // Time step [s]
     constexpr int time_iter = 1000;         // Number of time iterations
-    constexpr int harm = 100;               // Number of harmonics [-]
+    constexpr int harm = 400;               // Number of harmonics [-]
     const double pi = acos(-1.0);
 
     constexpr double k = 20.0;              // Steel thermal conductivjy [W/mK]
@@ -52,7 +52,7 @@ int main() {
     std::vector<double> T(N, 300.0);
     
     // Output file
-    std::ofstream file("wall_analytical.dat");
+    std::ofstream file("wall_analytical_neumann.dat");
 
     // Coefficient A_n from the initial conditions
     auto A_n = [&](int n) {

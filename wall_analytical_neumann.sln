@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wall_analytical", "wall_analytical.vcxproj", "{3D06EBD3-F41C-40C4-A826-AB9731F157A5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wall_analytical_neumann", "wall_analytical_neumann.vcxproj", "{3D06EBD3-F41C-40C4-A826-AB9731F157A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

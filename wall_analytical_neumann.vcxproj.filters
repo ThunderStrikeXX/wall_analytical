@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="wall_analytical.cpp">
+    <ClCompile Include="wall_analytical_neumann.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>
